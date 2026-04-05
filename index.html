@@ -1,0 +1,1967 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Spectra — Profile Organizer</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="manifest" href="/spectra/manifest.json">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Spectra">
+<meta name="theme-color" content="#09090d">
+<link rel="apple-touch-icon" href="/spectra/icons/icon-192.png">
+<style>
+:root {
+  --bg:#09090d; --s1:#111118; --s2:#18181f; --s3:#202028; --s4:#282833;
+  --border:rgba(255,255,255,0.07); --border2:rgba(255,255,255,0.13); --border3:rgba(255,255,255,0.22);
+  --text:#f0eeff; --t2:#9b98b8; --t3:#5a5870; --t4:#35334a;
+  --accent:#b69fff; --accent2:#9b82ff; --accentd:rgba(182,159,255,0.12);
+  --green:#5ef0a0; --red:#ff6b7a; --amber:#ffc14a; --blue:#5bc4ff; --pink:#ff79c6;
+  --font:'Outfit',sans-serif; --serif:'DM Serif Display',serif;
+  --r:10px; --r2:14px; --r3:20px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:100vh;overflow-x:hidden;}
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--s4);border-radius:10px;}
+
+/* ── BG GLOW ── */
+.bg-glow{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden;}
+.bg-glow::before{content:'';position:absolute;top:-200px;left:-100px;width:700px;height:700px;background:radial-gradient(circle,rgba(182,159,255,0.07) 0%,transparent 70%);}
+.bg-glow::after{content:'';position:absolute;bottom:-200px;right:-100px;width:500px;height:500px;background:radial-gradient(circle,rgba(94,240,160,0.04) 0%,transparent 70%);}
+
+/* ── NAV ── */
+nav{position:sticky;top:0;z-index:200;background:rgba(9,9,13,0.92);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);height:58px;display:flex;align-items:center;padding:0 22px;gap:12px;}
+.brand{font-family:var(--serif);font-size:22px;letter-spacing:-0.5px;background:linear-gradient(90deg,#b69fff,#5bc4ff,#5ef0a0);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;flex-shrink:0;}
+.brand em{color:var(--text);font-style:normal;}
+.nav-spacer{flex:1;}
+.nav-count{font-size:12px;color:var(--t2);background:var(--s2);border:1px solid var(--border);padding:4px 12px;border-radius:20px;}
+.nav-count b{color:var(--accent);}
+
+/* ── TOOLBAR ── */
+.toolbar{position:sticky;top:58px;z-index:190;background:rgba(9,9,13,0.9);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:10px 22px;display:flex;gap:9px;align-items:center;flex-wrap:wrap;}
+.search-wrap{position:relative;flex:1;min-width:180px;}
+.search-wrap input{width:100%;background:var(--s2);border:1px solid var(--border);border-radius:var(--r);padding:9px 14px 9px 38px;color:var(--text);font-family:var(--font);font-size:13px;outline:none;transition:border-color 0.2s;}
+.search-wrap input:focus{border-color:var(--accent);}
+.search-wrap input::placeholder{color:var(--t3);}
+.search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--t3);font-size:15px;pointer-events:none;}
+.sel{background:var(--s2);border:1px solid var(--border);border-radius:var(--r);padding:9px 12px;color:var(--text);font-family:var(--font);font-size:12px;outline:none;cursor:pointer;}
+.sel option{background:var(--s2);}
+.btn{background:var(--s2);border:1px solid var(--border);border-radius:var(--r);padding:9px 15px;color:var(--t2);font-family:var(--font);font-size:12px;font-weight:500;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;gap:6px;white-space:nowrap;}
+.btn:hover{border-color:var(--accent);color:var(--accent);}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--bg);font-weight:700;}
+.btn.primary:hover{background:var(--accent2);border-color:var(--accent2);}
+.btn.danger{border-color:var(--red);color:var(--red);}
+.btn.danger:hover{background:rgba(255,107,122,0.12);}
+
+/* ── CAT TABS ── */
+.cat-bar{padding:10px 22px;display:flex;gap:7px;overflow-x:auto;scrollbar-width:none;border-bottom:1px solid var(--border);background:var(--bg);}
+.cat-bar::-webkit-scrollbar{display:none;}
+.cat-pill{display:flex;align-items:center;gap:6px;padding:6px 14px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--t2);font-family:var(--font);font-size:12px;font-weight:500;cursor:pointer;transition:all 0.2s;white-space:nowrap;position:relative;}
+.cat-pill .dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.cat-pill .cnt{font-size:10px;opacity:0.7;}
+.cat-pill:hover{border-color:var(--border2);color:var(--text);}
+.cat-pill.active{border-color:var(--accent);color:var(--accent);background:var(--accentd);}
+.cat-pill .cat-edit-ico{display:none;font-size:10px;margin-left:2px;opacity:0.6;}
+.cat-pill:hover .cat-edit-ico{display:inline;}
+
+/* ── GRID ── */
+.main{padding:20px 22px 80px;position:relative;z-index:1;}
+.sort-row{display:flex;align-items:center;gap:10px;margin-bottom:16px;font-size:12px;color:var(--t3);}
+.sort-row select{background:var(--s2);border:1px solid var(--border);border-radius:8px;padding:5px 10px;color:var(--t2);font-family:var(--font);font-size:12px;outline:none;cursor:pointer;}
+.sort-row .rc{margin-left:auto;color:var(--t3);}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(195px,1fr));gap:13px;}
+
+/* ── CARD ── */
+.card{background:var(--s1);border:1px solid var(--border);border-radius:var(--r3);padding:18px 14px 14px;display:flex;flex-direction:column;align-items:center;gap:8px;position:relative;transition:all 0.22s;cursor:pointer;}
+.card:hover{border-color:rgba(182,159,255,0.35);background:var(--s2);transform:translateY(-2px);box-shadow:0 8px 32px rgba(0,0,0,0.4);}
+
+.card-actions{position:absolute;top:10px;right:10px;display:flex;gap:4px;opacity:0;transition:opacity 0.2s;}
+.card:hover .card-actions{opacity:1;}
+.ico-btn{width:26px;height:26px;border-radius:7px;border:1px solid var(--border);background:var(--s3);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:12px;transition:all 0.15s;}
+.ico-btn:hover{border-color:var(--accent);color:var(--accent);}
+.ico-btn.del:hover{border-color:var(--red);color:var(--red);}
+
+.priority-tag{position:absolute;top:10px;left:10px;font-size:10px;font-weight:700;border-radius:6px;padding:2px 8px;letter-spacing:0.04em;text-transform:uppercase;}
+.p-mustwatch{background:rgba(255,107,122,0.18);color:var(--red);}
+.p-normal{background:rgba(91,196,255,0.15);color:var(--blue);}
+.p-timepass{background:rgba(90,88,112,0.3);color:var(--t2);}
+
+.avatar{width:60px;height:60px;border-radius:50%;overflow:hidden;display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-size:22px;font-weight:700;flex-shrink:0;margin-top:4px;border:2px solid var(--border2);}
+.avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
+
+.card-user{font-size:13px;font-weight:700;text-align:center;word-break:break-all;color:var(--text);}
+.card-name{font-size:11px;color:var(--t2);text-align:center;word-break:break-word;}
+.card-cats{display:flex;flex-wrap:wrap;gap:4px;justify-content:center;max-width:170px;}
+.cat-chip{font-size:10px;border-radius:12px;padding:2px 8px;border:1px solid transparent;font-weight:500;}
+.card-stars{display:flex;gap:2px;}
+.s{font-size:13px;color:var(--t4);transition:color 0.1s;}
+.s.on{color:var(--amber);}
+.card-note{font-size:10px;color:var(--t3);text-align:center;font-style:italic;max-width:160px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;line-height:1.4;}
+
+.open-ig{font-size:11px;color:var(--accent);background:transparent;border:1px solid rgba(182,159,255,0.25);border-radius:7px;padding:5px 12px;cursor:pointer;font-family:var(--font);font-weight:500;transition:all 0.18s;margin-top:2px;}
+.open-ig:hover{background:var(--accentd);border-color:var(--accent);}
+
+/* ── MOVE DROPDOWN ── */
+.move-dd{position:absolute;top:36px;right:0;background:var(--s3);border:1px solid var(--border2);border-radius:12px;padding:6px;z-index:300;min-width:180px;box-shadow:0 12px 40px rgba(0,0,0,0.6);display:none;}
+.move-dd.open{display:block;}
+.move-dd-hd{font-size:10px;color:var(--t3);padding:4px 8px 6px;text-transform:uppercase;letter-spacing:0.07em;}
+.move-item{padding:8px 10px;border-radius:8px;font-size:12px;cursor:pointer;transition:background 0.15s;display:flex;align-items:center;gap:8px;}
+.move-item:hover{background:var(--s4);}
+.move-item.cur{color:var(--accent);font-weight:600;}
+.move-sep{height:1px;background:var(--border);margin:4px 0;}
+
+/* ── EMPTY ── */
+.empty{text-align:center;padding:80px 20px;color:var(--t3);}
+.empty .eico{font-size:44px;margin-bottom:14px;}
+.empty p{font-size:14px;}
+
+/* ── MODALS ── */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);backdrop-filter:blur(6px);z-index:400;align-items:center;justify-content:center;}
+.overlay.open{display:flex;}
+
+.modal{background:var(--s2);border:1px solid var(--border2);border-radius:22px;padding:28px;width:90%;max-width:440px;max-height:90vh;overflow-y:auto;animation:popIn 0.2s ease;}
+@keyframes popIn{from{opacity:0;transform:scale(0.96) translateY(8px)}to{opacity:1;transform:scale(1) translateY(0)}}
+.modal h3{font-family:var(--serif);font-size:20px;margin-bottom:20px;color:var(--text);}
+.form-label{font-size:11px;color:var(--t2);margin-bottom:5px;margin-top:14px;display:block;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;}
+.form-input{width:100%;background:var(--s1);border:1px solid var(--border);border-radius:var(--r);padding:10px 13px;color:var(--text);font-family:var(--font);font-size:13px;outline:none;transition:border-color 0.2s;}
+.form-input:focus{border-color:var(--accent);}
+.form-input::placeholder{color:var(--t3);}
+.form-input.small{padding:8px 11px;font-size:12px;}
+textarea.form-input{resize:vertical;min-height:70px;}
+.modal-footer{display:flex;gap:10px;margin-top:22px;justify-content:flex-end;}
+
+/* url hint */
+.url-hint{font-size:11px;color:var(--t3);margin-top:4px;}
+
+/* priority picker */
+.priority-row{display:flex;gap:8px;margin-top:6px;flex-wrap:wrap;}
+.p-btn{padding:7px 14px;border-radius:9px;border:2px solid transparent;font-family:var(--font);font-size:12px;font-weight:600;cursor:pointer;transition:all 0.18s;background:var(--s3);}
+.p-btn[data-p="mustwatch"]{color:var(--red);}
+.p-btn[data-p="normal"]{color:var(--blue);}
+.p-btn[data-p="timepass"]{color:var(--t2);}
+.p-btn.active[data-p="mustwatch"]{border-color:var(--red);background:rgba(255,107,122,0.12);}
+.p-btn.active[data-p="normal"]{border-color:var(--blue);background:rgba(91,196,255,0.1);}
+.p-btn.active[data-p="timepass"]{border-color:var(--t2);background:rgba(90,88,112,0.2);}
+
+/* rating slider */
+.rating-row{display:flex;align-items:center;gap:10px;margin-top:6px;}
+.rating-dots{display:flex;gap:5px;flex-wrap:wrap;}
+.rdot{width:22px;height:22px;border-radius:50%;border:2px solid var(--border2);background:var(--s3);cursor:pointer;transition:all 0.15s;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:var(--t3);}
+.rdot.on{background:var(--amber);border-color:var(--amber);color:var(--bg);}
+.rating-val{font-size:18px;font-weight:700;font-family:var(--serif);color:var(--amber);min-width:24px;}
+
+/* cat checkboxes */
+.cat-checks{display:flex;flex-wrap:wrap;gap:7px;margin-top:6px;}
+.cat-check-item{display:flex;align-items:center;gap:5px;background:var(--s3);border:1px solid var(--border);border-radius:8px;padding:5px 10px;cursor:pointer;font-size:12px;transition:all 0.15s;user-select:none;}
+.cat-check-item input{display:none;}
+.cat-check-item.checked{border-color:var(--accent);background:var(--accentd);color:var(--accent);}
+.cat-check-item .cch-dot{width:6px;height:6px;border-radius:50%;}
+
+/* avatar upload area */
+.avatar-zone{display:flex;align-items:center;gap:14px;margin-top:6px;}
+.av-preview{width:56px;height:56px;border-radius:50%;background:var(--s3);border:2px dashed var(--border2);display:flex;align-items:center;justify-content:center;font-size:22px;overflow:hidden;cursor:pointer;transition:border-color 0.2s;flex-shrink:0;}
+.av-preview:hover{border-color:var(--accent);}
+.av-preview img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
+.av-btns{display:flex;flex-direction:column;gap:6px;}
+.av-btn{font-size:11px;background:var(--s3);border:1px solid var(--border);border-radius:7px;padding:5px 10px;color:var(--t2);cursor:pointer;font-family:var(--font);transition:all 0.15s;}
+.av-btn:hover{border-color:var(--accent);color:var(--accent);}
+
+/* ── DETAIL PANEL ── */
+.detail-overlay{display:none;position:fixed;inset:0;z-index:500;}
+.detail-overlay.open{display:flex;}
+.detail-backdrop{position:absolute;inset:0;background:rgba(0,0,0,0.65);backdrop-filter:blur(8px);}
+.detail-panel{position:absolute;right:0;top:0;height:100%;width:min(500px,100%);background:var(--s1);border-left:1px solid var(--border2);display:flex;flex-direction:column;animation:slideIn 0.28s cubic-bezier(.4,0,.2,1);}
+@keyframes slideIn{from{transform:translateX(100%)}to{transform:translateX(0)}}
+.detail-top{display:flex;align-items:center;gap:10px;padding:16px 18px;border-bottom:1px solid var(--border);}
+.detail-top .close-btn{width:32px;height:32px;border-radius:8px;background:var(--s3);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;margin-right:auto;}
+.detail-top .close-btn:hover{border-color:var(--red);color:var(--red);}
+.detail-body{flex:1;overflow-y:auto;padding:0;}
+.detail-ig-zone{width:100%;flex:1;border:none;background:var(--s1);}
+
+/* ig view picker */
+.ig-picker{display:flex;gap:8px;padding:14px 18px;border-bottom:1px solid var(--border);}
+.ig-opt{flex:1;padding:9px;text-align:center;border-radius:var(--r);border:1px solid var(--border);background:var(--s2);font-family:var(--font);font-size:12px;color:var(--t2);cursor:pointer;transition:all 0.18s;}
+.ig-opt:hover{border-color:var(--border2);color:var(--text);}
+.ig-opt.active{border-color:var(--accent);color:var(--accent);background:var(--accentd);}
+
+.detail-info{padding:18px;}
+.detail-avatar-row{display:flex;align-items:center;gap:14px;margin-bottom:16px;}
+.detail-av{width:64px;height:64px;border-radius:50%;overflow:hidden;display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-size:24px;border:2px solid var(--border2);}
+.detail-av img{width:100%;height:100%;object-fit:cover;}
+.detail-uname{font-size:19px;font-weight:700;font-family:var(--serif);}
+.detail-fname{font-size:13px;color:var(--t2);}
+.detail-sec{margin-bottom:14px;}
+.detail-sec-lbl{font-size:10px;color:var(--t3);font-weight:700;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px;}
+.detail-notes-box{background:var(--s2);border:1px solid var(--border);border-radius:var(--r);padding:10px 13px;font-size:13px;color:var(--t2);line-height:1.5;}
+.detail-meta{font-size:12px;color:var(--t3);}
+
+/* ── VIEW MODAL (iframe popup) ── */
+.view-modal{width:min(900px,96%);height:min(700px,90vh);padding:0;overflow:hidden;display:flex;flex-direction:column;}
+.view-modal-top{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--border);}
+.view-modal-top .vm-title{font-weight:600;font-size:14px;flex:1;}
+.view-modal iframe{flex:1;width:100%;border:none;background:#fff;}
+
+/* ── CATEGORY MODAL ── */
+.cat-modal-list{display:flex;flex-direction:column;gap:6px;max-height:280px;overflow-y:auto;margin:10px 0;}
+.cat-modal-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:var(--r);background:var(--s3);border:1px solid var(--border);}
+.cat-modal-item .dot-sm{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.cat-modal-item .cat-name{flex:1;font-size:13px;}
+.cat-modal-item input.cat-edit-input{flex:1;background:var(--s1);border:1px solid var(--accent);border-radius:6px;padding:4px 8px;color:var(--text);font-family:var(--font);font-size:13px;outline:none;}
+
+/* ── PICK OPTION BUTTONS ── */
+.pick-opt-btn{width:100%;display:flex;align-items:center;gap:13px;padding:13px 15px;background:var(--s3);border:1px solid var(--border);border-radius:var(--r2);cursor:pointer;transition:all 0.18s;text-align:left;font-family:var(--font);}
+.pick-opt-btn:hover{border-color:var(--accent);background:var(--accentd);}
+.pick-ico{font-size:20px;flex-shrink:0;width:28px;text-align:center;}
+.pick-text{flex:1;}
+.pick-title{font-size:13px;font-weight:600;color:var(--text);margin-bottom:2px;}
+.pick-sub{font-size:11px;color:var(--t3);line-height:1.4;}
+.pick-badge{font-size:10px;font-weight:700;border-radius:6px;padding:2px 7px;flex-shrink:0;letter-spacing:0.04em;text-transform:uppercase;}
+.pick-badge-best{background:rgba(94,240,160,0.15);color:var(--green);}
+.pick-badge-warn{background:rgba(255,193,74,0.15);color:var(--amber);}
+
+/* ── IG CARD MODAL — Instagram replica ── */
+.ig-card-modal{
+  width:min(430px,100%);
+  max-height:92vh;
+  overflow-y:auto;
+  background:#000;
+  border:1px solid #262626;
+  border-radius:18px;
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  color:#fff;
+  animation:popIn 0.22s ease;
+  position:relative;
+}
+/* IG top bar */
+.igr-topbar{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 16px 10px;
+  border-bottom:1px solid #1a1a1a;
+  position:sticky;top:0;background:#000;z-index:10;
+}
+.igr-back{font-size:22px;cursor:pointer;color:#fff;background:none;border:none;line-height:1;padding:2px 6px;}
+.igr-topname{font-size:17px;font-weight:700;color:#fff;flex:1;padding:0 12px;}
+.igr-menu{font-size:22px;cursor:pointer;color:#fff;background:none;border:none;}
+
+/* IG profile header */
+.igr-header{padding:14px 16px 10px;display:flex;align-items:flex-start;gap:16px;}
+.igr-av-wrap{position:relative;flex-shrink:0;}
+/* Story gradient ring */
+.igr-ring{
+  width:90px;height:90px;border-radius:50%;
+  padding:3px;
+  background:conic-gradient(#f09433,#e6683c,#dc2743,#cc2366,#bc1888,#f09433);
+  display:flex;align-items:center;justify-content:center;
+}
+.igr-ring.no-ring{background:#333;}
+.igr-av-inner{
+  width:100%;height:100%;border-radius:50%;
+  background:#1a1a1a;border:3px solid #000;
+  overflow:hidden;display:flex;align-items:center;justify-content:center;
+  font-size:32px;font-weight:800;color:#fff;
+}
+.igr-av-inner img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
+/* New badge under avatar */
+.igr-new-badge{
+  position:absolute;bottom:0;left:50%;transform:translateX(-50%);
+  background:#1877F2;color:#fff;font-size:11px;font-weight:700;
+  padding:2px 10px;border-radius:12px;white-space:nowrap;border:2px solid #000;
+}
+
+/* Stats row */
+.igr-stats{flex:1;display:flex;gap:0;align-items:center;margin-top:6px;}
+.igr-stat{flex:1;text-align:center;}
+.igr-stat-n{font-size:17px;font-weight:700;color:#fff;display:block;}
+.igr-stat-l{font-size:12px;color:#a8a8a8;display:block;margin-top:1px;}
+
+/* Name + bio */
+.igr-namerow{padding:2px 16px 6px;}
+.igr-fullname{font-size:14px;font-weight:700;color:#fff;}
+.igr-bio{font-size:14px;color:#fff;line-height:1.5;margin-top:4px;white-space:pre-wrap;}
+
+/* Action buttons */
+.igr-actions{display:flex;gap:6px;padding:10px 16px 12px;align-items:center;}
+.igr-follow-btn{flex:1;background:#0095F6;color:#fff;font-size:14px;font-weight:600;border:none;border-radius:8px;padding:8px;cursor:pointer;transition:background 0.18s;}
+.igr-follow-btn:hover{background:#1aa3ff;}
+.igr-msg-btn{flex:1;background:#262626;color:#fff;font-size:14px;font-weight:600;border:none;border-radius:8px;padding:8px;cursor:pointer;border:1px solid #363636;transition:background 0.18s;}
+.igr-msg-btn:hover{background:#333;}
+.igr-add-btn{width:40px;height:38px;background:#262626;color:#fff;font-size:18px;border:1px solid #363636;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background 0.18s;}
+.igr-add-btn:hover{background:#333;}
+
+/* Tab bar */
+.igr-tabs{display:flex;border-top:1px solid #262626;border-bottom:1px solid #262626;}
+.igr-tab{flex:1;display:flex;align-items:center;justify-content:center;padding:12px;cursor:pointer;opacity:0.4;border-bottom:2px solid transparent;}
+.igr-tab.active{opacity:1;border-bottom:2px solid #fff;}
+.igr-tab svg,.igr-tab span{pointer-events:none;}
+
+/* Posts grid */
+.igr-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;background:#000;}
+.igr-post{aspect-ratio:1;background:#1a1a1a;overflow:hidden;position:relative;cursor:pointer;}
+.igr-post img{width:100%;height:100%;object-fit:cover;display:block;}
+.igr-post-placeholder{width:100%;height:100%;background:#1c1c1c;display:flex;align-items:center;justify-content:center;color:#333;font-size:28px;}
+.igr-post-overlay{position:absolute;inset:0;background:rgba(0,0,0,0);}
+.igr-post:hover .igr-post-overlay{background:rgba(0,0,0,0.25);}
+.igr-reel-icon{position:absolute;top:7px;right:7px;font-size:16px;filter:drop-shadow(0 1px 3px rgba(0,0,0,0.8));}
+.igr-view-count{position:absolute;bottom:7px;left:7px;display:flex;align-items:center;gap:4px;font-size:12px;font-weight:700;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,0.9);}
+
+/* My vault data strip */
+.igr-vault-strip{background:#111;border-top:1px solid #1e1e1e;padding:14px 16px;}
+.igr-vault-title{font-size:10px;font-weight:700;color:#555;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:10px;}
+.igr-vault-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+.igr-vault-label{font-size:12px;color:#888;}
+.igr-vault-val{font-size:13px;font-weight:600;color:#fff;}
+
+/* Close X */
+.igr-close{position:absolute;top:12px;right:50px;width:32px;height:32px;border-radius:50%;background:rgba(0,0,0,0.6);border:none;color:#fff;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:20;}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--s3);border:1px solid var(--border2);border-radius:12px;padding:10px 20px;font-size:13px;z-index:9999;transition:all 0.3s;pointer-events:none;opacity:0;}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1;}
+.toast.ok{border-color:var(--green);color:var(--green);}
+.toast.err{border-color:var(--red);color:var(--red);}
+
+/* ── ADD CAT BADGE MODAL ── */
+.badge-preview-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;}
+.badge-preview{font-size:11px;font-weight:700;border-radius:6px;padding:3px 10px;letter-spacing:0.04em;text-transform:uppercase;}
+
+/* ── RESPONSIVE ── */
+@media(max-width:600px){
+  .grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;}
+  .detail-panel{width:100%;}
+  .toolbar{gap:6px;}
+}
+
+/* ── UTIL ── */
+.av-colors{background:linear-gradient(135deg,#2d1f6e,#1f3d2a);color:#a999f7;}
+.c0{background:#2d1f6e;color:#b69fff}
+.c1{background:#1f3d2a;color:#5ef0a0}
+.c2{background:#3d1f2d;color:#ff79c6}
+.c3{background:#2d2a1a;color:#ffc14a}
+.c4{background:#1a2d3d;color:#5bc4ff}
+.c5{background:#3a1f1f;color:#ff6b7a}
+.c6{background:#1a2a3d;color:#64e0ff}
+.c7{background:#2a1a3d;color:#c084fc}
+</style>
+</head>
+<body>
+
+<div class="bg-glow"></div>
+
+<!-- NAV -->
+<nav>
+  <div class="brand">Spectra</div>
+  <div class="nav-spacer"></div>
+  <div class="nav-count" id="navCount"><b>0</b> profiles</div>
+  <div class="nav-count" id="serverIndicator" style="font-size:11px;cursor:default"><span style="color:#5a5870">○</span></div>
+  <button class="btn" onclick="openGistSetup()" style="padding:6px 12px;font-size:11px;" title="Gist Settings">⚙</button>
+</nav>
+
+<!-- TOOLBAR -->
+<div class="toolbar">
+  <div class="search-wrap">
+    <span class="search-icon">🔍</span>
+    <input type="text" id="searchInput" placeholder="Search @username, name, notes…" oninput="renderAll()">
+  </div>
+  <select class="sel" id="sortSel" onchange="renderAll()">
+    <option value="date">Date Added</option>
+    <option value="az">A → Z</option>
+    <option value="rating">Top Rated</option>
+    <option value="priority">Priority</option>
+  </select>
+  <button class="btn primary" onclick="openAddModal(null)">＋ Add Account</button>
+  <button class="btn" onclick="openCatManager()">⊞ Categories</button>
+  <button class="btn" onclick="exportBackup()" title="Export JSON backup">↓ Backup</button>
+
+</div>
+
+<!-- CATEGORY TABS -->
+<div class="cat-bar" id="catBar"></div>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="sort-row">
+    <span id="resultCount" class="rc"></span>
+  </div>
+  <div class="grid" id="grid"></div>
+  <div class="empty" id="emptyState" style="display:none">
+    <div class="eico">📭</div>
+    <p>No profiles here yet.<br>Add one with the button above!</p>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════ -->
+<!-- ADD / EDIT MODAL -->
+<!-- ══════════════════════════════════════ -->
+<div class="overlay" id="addOverlay" onclick="closeAddModal(event)">
+<div class="modal" onclick="e=>e.stopPropagation()">
+  <h3 id="addModalTitle">Add Profile</h3>
+
+  <label class="form-label">Instagram URL or Username</label>
+  <input type="text" class="form-input" id="inputUrl" placeholder="https://instagram.com/username?igsh=… or @username" oninput="parseUrl()">
+  <div class="url-hint" id="urlHint">Paste the "Copy Profile URL" link — username will be extracted automatically.</div>
+
+  <label class="form-label">Display Name <span style="color:var(--t3);font-weight:400">(optional)</span></label>
+  <input type="text" class="form-input" id="inputName" placeholder="Full name or nick">
+
+  <label class="form-label">Categories</label>
+  <div class="cat-checks" id="catChecks"></div>
+
+  <label class="form-label">Priority</label>
+  <div class="priority-row" id="priorityRow"></div>
+
+  <label class="form-label">Rating <span style="color:var(--t3);font-weight:400">(1–10)</span></label>
+  <div class="rating-row">
+    <div class="rating-dots" id="ratingDots"></div>
+    <div class="rating-val" id="ratingVal">0</div>
+  </div>
+
+  <label class="form-label">Profile Image</label>
+  <div class="avatar-zone">
+    <div class="av-preview" id="avPreview" onclick="document.getElementById('avFile').click()">📷</div>
+    <div class="av-btns">
+      <input type="file" id="avFile" accept="image/*" style="display:none" onchange="handleAvFile(event)">
+      <button class="av-btn" onclick="document.getElementById('avFile').click()">📁 Upload image</button>
+      <button class="av-btn" onclick="pasteAvClipboard()">📋 Paste from clipboard</button>
+      <input type="text" class="form-input small" id="avUrlInput" placeholder="Or paste image URL…" oninput="applyAvUrl()">
+    </div>
+  </div>
+
+  <label class="form-label">Bio <span style="color:var(--t3);font-weight:400">(their Instagram bio)</span></label>
+  <textarea class="form-input" id="inputBio" rows="2" placeholder="Their bio from Instagram…"></textarea>
+
+  <label class="form-label">IG Stats <span style="color:var(--t3);font-weight:400">(from their profile)</span></label>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:4px;">
+    <div>
+      <div style="font-size:10px;color:var(--t3);margin-bottom:4px;">Posts</div>
+      <input type="text" class="form-input small" id="inputPosts" placeholder="e.g. 42">
+    </div>
+    <div>
+      <div style="font-size:10px;color:var(--t3);margin-bottom:4px;">Followers</div>
+      <input type="text" class="form-input small" id="inputFollowers" placeholder="e.g. 528K">
+    </div>
+    <div>
+      <div style="font-size:10px;color:var(--t3);margin-bottom:4px;">Following</div>
+      <input type="text" class="form-input small" id="inputFollowing" placeholder="e.g. 312">
+    </div>
+  </div>
+
+  <label class="form-label">Notes <span style="color:var(--t3);font-weight:400">(your personal notes)</span></label>
+  <textarea class="form-input" id="inputNotes" rows="2" placeholder="Why you follow, what they post, reminders…"></textarea>
+
+  <div class="modal-footer">
+    <button class="btn" onclick="closeAddModal()">Cancel</button>
+    <button class="btn primary" onclick="saveProfile()">Save</button>
+  </div>
+</div>
+</div>
+
+<!-- ══════════════════════════════════════ -->
+<!-- DETAIL SLIDE PANEL -->
+<!-- ══════════════════════════════════════ -->
+<div class="detail-overlay" id="detailOverlay">
+  <div class="detail-backdrop" onclick="closeDetail()"></div>
+  <div class="detail-panel" id="detailPanel">
+    <!-- filled by JS -->
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════ -->
+<!-- VIEW MODAL (iframe) -->
+<!-- ══════════════════════════════════════ -->
+<div class="overlay" id="viewOverlay" onclick="closeViewModal(event)">
+  <div class="modal view-modal" onclick="e=>e.stopPropagation()">
+    <div class="view-modal-top">
+      <span class="vm-title" id="vmTitle">@username</span>
+      <button class="btn" onclick="openInNewTab()">↗ New Tab</button>
+      <button class="btn" onclick="closeViewModal()">✕ Close</button>
+    </div>
+    <iframe id="viewIframe" src="" sandbox="allow-same-origin allow-scripts allow-popups allow-forms" allow="fullscreen"></iframe>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════ -->
+<!-- OPEN MODE PICKER MODAL (4 options) -->
+<!-- ══════════════════════════════════════ -->
+<div class="overlay" id="openPickerOverlay" onclick="if(event.target===this)closeOpenPicker()">
+  <div class="modal" style="max-width:400px" onclick="event.stopPropagation()">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
+      <span style="font-size:18px">📂</span>
+      <h3 style="margin:0">Open Profile</h3>
+    </div>
+    <p style="font-size:13px;color:var(--accent);margin-bottom:20px;font-weight:600;" id="openPickerUser">@username</p>
+    <div style="display:flex;flex-direction:column;gap:9px;">
+
+      <button class="pick-opt-btn" onclick="openPickChoice('card')">
+        <span class="pick-ico">📱</span>
+        <div class="pick-text">
+          <div class="pick-title">Instagram-style Card</div>
+          <div class="pick-sub">Beautiful profile view using your saved data — always works</div>
+        </div>
+        <span class="pick-badge pick-badge-best">Best</span>
+      </button>
+
+      <button class="pick-opt-btn" onclick="openPickChoice('sidepanel')">
+        <span class="pick-ico">⇥</span>
+        <div class="pick-text">
+          <div class="pick-title">Side Panel</div>
+          <div class="pick-sub">Slide-in panel alongside your vault</div>
+        </div>
+      </button>
+
+      <button class="pick-opt-btn" onclick="openPickChoice('iframe')">
+        <span class="pick-ico">🖼️</span>
+        <div class="pick-text">
+          <div class="pick-title">Embedded (Popup)</div>
+          <div class="pick-sub">Tries to load Instagram inside app — may be blocked</div>
+        </div>
+        <span class="pick-badge pick-badge-warn">May fail</span>
+      </button>
+
+      <button class="pick-opt-btn" onclick="openPickChoice('tab')">
+        <span class="pick-ico">↗</span>
+        <div class="pick-text">
+          <div class="pick-title">Open in New Tab</div>
+          <div class="pick-sub">Opens Instagram directly in browser</div>
+        </div>
+      </button>
+
+    </div>
+    <div class="modal-footer" style="margin-top:18px;">
+      <button class="btn" onclick="closeOpenPicker()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════ -->
+<!-- IG-STYLE CARD MODAL -->
+<!-- ══════════════════════════════════════ -->
+<div class="overlay" id="igCardOverlay" onclick="if(event.target===this)closeIgCard()">
+  <div class="ig-card-modal" onclick="event.stopPropagation()" id="igCardModal">
+    <!-- filled by JS -->
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════ -->
+<!-- CATEGORY MANAGER MODAL -->
+<!-- ══════════════════════════════════════ -->
+<div class="overlay" id="catOverlay" onclick="closeCatManager(event)">
+  <div class="modal" onclick="e=>e.stopPropagation()">
+    <h3>Manage Categories</h3>
+    <div class="cat-modal-list" id="catModalList"></div>
+    <div style="display:flex;gap:8px;margin-top:10px;">
+      <input type="text" class="form-input" id="newCatName" placeholder="New category name…" style="flex:1" onkeydown="if(event.key==='Enter')addCategory()">
+      <input type="color" id="newCatColor" value="#b69fff" style="width:40px;height:38px;border:none;background:none;cursor:pointer;border-radius:8px;">
+      <button class="btn primary" onclick="addCategory()">Add</button>
+    </div>
+
+    <div style="margin-top:18px;border-top:1px solid var(--border);padding-top:14px;">
+      <div style="font-size:11px;color:var(--t3);font-weight:700;text-transform:uppercase;letter-spacing:0.07em;margin-bottom:10px;">Priority Badges</div>
+      <div id="badgeList"></div>
+      <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;align-items:center;">
+        <input type="text" class="form-input small" id="newBadgeName" placeholder="Badge label…" style="flex:1;min-width:120px">
+        <input type="color" id="newBadgeColor" value="#ff6b7a" style="width:36px;height:34px;border:none;background:none;cursor:pointer;border-radius:7px;">
+        <button class="btn primary" onclick="addBadge()">+ Badge</button>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn primary" onclick="closeCatManager()">Done</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════ -->
+<!-- GIST SETUP MODAL -->
+<!-- ══════════════════════════════════════ -->
+<div class="overlay" id="gistSetupOverlay" onclick="if(event.target===this)closeGistSetup()">
+  <div class="modal" style="max-width:420px" onclick="event.stopPropagation()">
+    <h3>⚙ Connect to GitHub Gist</h3>
+    <p style="font-size:13px;color:var(--t2);margin-bottom:16px;line-height:1.6">
+      Your data is stored in a private GitHub Gist — accessible from any device including your OnePlus Pad.
+    </p>
+
+    <label class="form-label">GitHub Personal Access Token</label>
+    <input class="form-input" type="password" id="gsToken" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx">
+    <div style="font-size:11px;color:var(--t3);margin-top:4px;">
+      <a href="https://github.com/settings/tokens/new?scopes=gist&description=IGVault" target="_blank" style="color:var(--accent)">
+        → Create token on GitHub
+      </a> — select only "gist" scope
+    </div>
+
+    <label class="form-label" style="margin-top:14px">Gist ID <span style="color:var(--t3);font-weight:400;text-transform:none">(leave blank to auto-create)</span></label>
+    <input class="form-input" type="text" id="gsGistId" placeholder="Leave blank for first time setup">
+
+    <div style="background:rgba(182,159,255,0.07);border:1px solid rgba(182,159,255,0.18);border-radius:12px;padding:12px 14px;margin-top:14px;">
+      <div style="font-size:12px;font-weight:700;color:var(--accent);margin-bottom:6px;">📸 ImgBB Key <span style="font-size:10px;font-weight:400;color:var(--t3)">(optional — for permanent profile pics)</span></div>
+      <div style="font-size:11px;color:var(--t3);line-height:1.5;margin-bottom:8px;">
+        Without this: profile pics use Instagram CDN links (may expire after a few days).<br>
+        With this: pics are permanently re-hosted and never expire.
+      </div>
+      <input class="form-input" type="text" id="gsImgbb" placeholder="Get free key at api.imgbb.com">
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn" onclick="closeGistSetup()">Cancel</button>
+      <button class="btn primary" onclick="saveGistConfig()">Save & Connect</button>
+    </div>
+  </div>
+</div>
+
+<div id="shareBanner" style="display:none;position:fixed;top:70px;left:0;right:0;z-index:999;padding:10px 16px;background:#1a0a2e;border-bottom:2px solid var(--accent);font-size:13px;color:var(--accent);display:flex;align-items:center;gap:10px;">
+  <span>📲</span><span id="shareBannerText" style="flex:1"></span>
+  <button onclick="dismissShareBanner()" style="background:none;border:none;color:var(--t3);font-size:18px;cursor:pointer;">✕</button>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════════════════════
+let profiles = [];
+let categories = [];
+let badges = [];
+let activeCat = 'all';
+let editingId = null;
+let formRating = 0;
+let formPriority = 'normal';
+let formAvatar = '';
+let viewTargetUrl = '';
+let viewTargetUser = '';
+
+const PRIORITY_ORDER = {};
+
+function getPriorityOrder(key) {
+  const idx = badges.findIndex(b => b.key === key);
+  return idx === -1 ? 99 : idx;
+}
+
+// Default badges
+const DEFAULT_BADGES = [
+  { key: 'mustwatch', label: 'Must Watch', color: '#ff6b7a' },
+  { key: 'normal',    label: 'Normal',     color: '#5bc4ff' },
+  { key: 'timepass',  label: 'Timepass',   color: '#5a5870' },
+];
+
+// Default categories
+const DEFAULT_CATS = [
+  { id: 'dance',       name: 'Dance',         color: '#ff79c6' },
+  { id: 'spirituality',name: 'Spirituality',   color: '#c084fc' },
+  { id: 'songs',       name: 'Songs / Music',  color: '#ffc14a' },
+  { id: 'study',       name: 'Study',          color: '#5bc4ff' },
+  { id: 'tech',        name: 'Tech',           color: '#5ef0a0' },
+  { id: 'health',      name: 'Health',         color: '#ff8c42' },
+  { id: 'influencers', name: 'Influencers',    color: '#b69fff' },
+];
+
+// ══════════════════════════════════════════════════════════════
+// SYNC LAYER — Gist (primary) + localStorage (fallback)
+// Works on BOTH:
+//   Desktop → via Chrome Extension bridge (chrome.runtime)
+//   OnePlus Pad → direct Gist API calls (no extension needed)
+// ══════════════════════════════════════════════════════════════
+
+// Config — stored in localStorage
+let GIST_TOKEN  = localStorage.getItem('igv_gist_token')  || '';
+let GIST_ID     = localStorage.getItem('igv_gist_id')     || '';
+let IMGBB_KEY   = localStorage.getItem('igv_imgbb_key')   || '';
+
+// Detect if running inside Chrome extension context (desktop)
+const hasExtension = (() => {
+  try { return typeof chrome !== 'undefined' && !!chrome?.runtime?.id; }
+  catch { return false; }
+})();
+
+function extMsg(data) {
+  return new Promise(resolve => {
+    try { chrome.runtime.sendMessage(data, r => resolve(r || null)); }
+    catch { resolve(null); }
+  });
+}
+
+// ── GIST API (used directly on tablet, via extension on desktop) ──
+function gistHeaders() {
+  return {
+    'Authorization': 'token ' + GIST_TOKEN,
+    'Accept': 'application/vnd.github+json',
+    'Content-Type': 'application/json',
+  };
+}
+
+async function gistFetch(method, path, body) {
+  const res = await fetch('https://api.github.com' + path, {
+    method,
+    headers: gistHeaders(),
+    body: body ? JSON.stringify(body) : undefined,
+    signal: AbortSignal.timeout(8000),
+  });
+  return res;
+}
+
+async function ensureGist() {
+  if (GIST_ID) return GIST_ID;
+  if (!GIST_TOKEN) return null;
+  try {
+    const res = await gistFetch('POST', '/gists', {
+      description: 'Spectra Data',
+      public: false,
+      files: {
+        'igvault.json':     { content: '{"profiles":[],"categories":[],"badges":[]}' },
+        'ig_profiles.json': { content: '{}' },
+      }
+    });
+    if (!res.ok) return null;
+    const g = await res.json();
+    GIST_ID = g.id;
+    localStorage.setItem('igv_gist_id', GIST_ID);
+    showToast('✅ Gist created!', 'ok');
+    return GIST_ID;
+  } catch { return null; }
+}
+
+async function readGistFile(filename) {
+  if (!GIST_TOKEN || !GIST_ID) return null;
+  try {
+    const res = await gistFetch('GET', `/gists/${GIST_ID}`);
+    if (!res.ok) return null;
+    const g = await res.json();
+    const raw = g.files?.[filename]?.content;
+    return raw ? JSON.parse(raw) : null;
+  } catch { return null; }
+}
+
+async function writeGistFile(filename, data) {
+  if (!GIST_TOKEN) return false;
+  const id = await ensureGist();
+  if (!id) return false;
+  try {
+    const res = await gistFetch('PATCH', `/gists/${id}`, {
+      files: { [filename]: { content: JSON.stringify(data, null, 2) } }
+    });
+    return res.ok;
+  } catch { return false; }
+}
+
+// ── LOAD DATA ─────────────────────────────────────────────────
+async function loadData() {
+  let loaded = false;
+
+  // Desktop: try extension bridge first (faster, token already in extension)
+  if (hasExtension) {
+    const res = await extMsg({ type: 'LOAD_VAULT_DATA' });
+    if (res?.profiles) {
+      profiles   = res.profiles;
+      categories = res.categories?.length ? res.categories : DEFAULT_CATS;
+      badges     = res.badges?.length     ? res.badges     : DEFAULT_BADGES;
+      loaded = true;
+      // Sync extension token/gist to local vars
+      chrome.storage.local?.get(['igv_gist_token','igv_gist_id','igv_imgbb_key'], d => {
+        if (d?.igv_gist_token) { GIST_TOKEN = d.igv_gist_token; localStorage.setItem('igv_gist_token', GIST_TOKEN); }
+        if (d?.igv_gist_id)    { GIST_ID    = d.igv_gist_id;    localStorage.setItem('igv_gist_id',    GIST_ID);    }
+        if (d?.igv_imgbb_key)  { IMGBB_KEY  = d.igv_imgbb_key;  localStorage.setItem('igv_imgbb_key',  IMGBB_KEY);  }
+      });
+    }
+  }
+
+  // Tablet / no extension: direct Gist API
+  if (!loaded && GIST_TOKEN && GIST_ID) {
+    const d = await readGistFile('igvault.json');
+    if (d) {
+      profiles   = d.profiles   || [];
+      categories = d.categories?.length ? d.categories : DEFAULT_CATS;
+      badges     = d.badges?.length     ? d.badges     : DEFAULT_BADGES;
+      loaded = true;
+    }
+  }
+
+  // Final fallback: localStorage
+  if (!loaded) {
+    try {
+      profiles   = JSON.parse(localStorage.getItem('igv_profiles') || '[]');
+      categories = JSON.parse(localStorage.getItem('igv_cats')  || 'null') || DEFAULT_CATS;
+      badges     = JSON.parse(localStorage.getItem('igv_badges') || 'null') || DEFAULT_BADGES;
+    } catch { profiles=[]; categories=DEFAULT_CATS; badges=DEFAULT_BADGES; }
+  }
+
+  // Mirror to localStorage always (offline fallback)
+  localStorage.setItem('igv_profiles', JSON.stringify(profiles));
+  localStorage.setItem('igv_cats',     JSON.stringify(categories));
+  localStorage.setItem('igv_badges',   JSON.stringify(badges));
+
+  updateServerIndicator(loaded && (hasExtension || !!(GIST_TOKEN && GIST_ID)));
+}
+
+// ── SAVE DATA ─────────────────────────────────────────────────
+async function saveData() {
+  // Always save locally first (instant)
+  localStorage.setItem('igv_profiles', JSON.stringify(profiles));
+  localStorage.setItem('igv_cats',     JSON.stringify(categories));
+  localStorage.setItem('igv_badges',   JSON.stringify(badges));
+
+  const payload = { profiles, categories, badges };
+
+  // Desktop: via extension
+  if (hasExtension) {
+    await extMsg({ type: 'SAVE_VAULT_DATA', ...payload });
+    return;
+  }
+
+  // Tablet: direct Gist API
+  if (GIST_TOKEN) {
+    const ok = await writeGistFile('igvault.json', payload);
+    updateServerIndicator(ok);
+  }
+}
+
+// ── SYNC IG PROFILE DATA (tablet — no extension) ──────────────
+// Called when user shares a profile from Instagram on tablet
+// Does NOT capture posts (no extension) — just saves username + manual data
+// Desktop extension handles full capture automatically
+
+// ── GET EXTENSION DATA (profile pic + posts from Gist) ────────
+async function getExtensionData(username) {
+  const uname = username.toLowerCase().replace('@','');
+
+  // Desktop: ask extension
+  if (hasExtension) {
+    const res = await extMsg({ type: 'GET_IG_PROFILE', username: uname });
+    if (res?.profile) return res.profile;
+  }
+
+  // Tablet: read directly from Gist
+  if (GIST_TOKEN && GIST_ID) {
+    const all = await readGistFile('ig_profiles.json');
+    return all?.[uname] || null;
+  }
+  return null;
+}
+
+// ── RE-UPLOAD TO IMGBB (tablet: direct API, desktop: via extension) ──
+async function reuploadToImgBB(username, imageUrl) {
+  const key = IMGBB_KEY;
+  if (!key) { showToast('Add ImgBB key in ⚙ Gist settings', 'err'); return; }
+  showToast('Uploading to ImgBB…');
+  try {
+    const form = new FormData();
+    form.append('image', imageUrl);
+    form.append('key', key);
+    const res  = await fetch('https://api.imgbb.com/1/upload', { method:'POST', body:form });
+    const data = await res.json();
+    const permUrl = data?.data?.url;
+    if (!permUrl) throw new Error('No URL returned');
+
+    // Update Gist with permanent URL
+    const all  = await readGistFile('ig_profiles.json') || {};
+    const uname = username.toLowerCase().replace('@','');
+    if (all[uname]) {
+      all[uname].profilePicPerm = permUrl;
+      await writeGistFile('ig_profiles.json', all);
+    }
+    showToast('✅ Permanent pic saved!', 'ok');
+    const p = profiles.find(x=>x.username.replace('@','').toLowerCase()===uname);
+    if (p) openIgCard(p.id);
+  } catch(e) {
+    showToast('ImgBB upload failed', 'err');
+  }
+}
+
+// ── INDICATOR ─────────────────────────────────────────────────
+function updateServerIndicator(online) {
+  const ind = document.getElementById('serverIndicator');
+  if (!ind) return;
+  const isConfigured = !!(GIST_TOKEN && GIST_ID) || hasExtension;
+  ind.style.cursor = online ? 'default' : 'pointer';
+  ind.onclick = online ? null : openGistSetup;
+  ind.title = online ? 'Gist synced' : isConfigured ? 'Gist offline - tap to reconfigure' : 'Tap to connect GitHub Gist';
+  ind.innerHTML = online
+    ? `<span style="color:#5ef0a0">● Synced</span>`
+    : isConfigured
+      ? `<span style="color:#ffc14a">○ Offline</span>`
+      : `<span style="color:#5a5870">⚙ Gist</span>`;
+}
+
+// ── GIST SETUP UI ─────────────────────────────────────────────
+function openGistSetup() {
+  document.getElementById('gsToken').value  = GIST_TOKEN;
+  document.getElementById('gsGistId').value = GIST_ID;
+  document.getElementById('gsImgbb').value  = IMGBB_KEY;
+  document.getElementById('gistSetupOverlay').classList.add('open');
+}
+function closeGistSetup() {
+  document.getElementById('gistSetupOverlay').classList.remove('open');
+}
+async function saveGistConfig() {
+  GIST_TOKEN = document.getElementById('gsToken').value.trim();
+  GIST_ID    = document.getElementById('gsGistId').value.trim();
+  IMGBB_KEY  = document.getElementById('gsImgbb').value.trim();
+  localStorage.setItem('igv_gist_token', GIST_TOKEN);
+  localStorage.setItem('igv_gist_id',    GIST_ID);
+  localStorage.setItem('igv_imgbb_key',  IMGBB_KEY);
+  // Also sync to extension if available
+  if (hasExtension) {
+    await extMsg({ type: 'SAVE_CONFIG', token: GIST_TOKEN, gistId: GIST_ID, imgbbKey: IMGBB_KEY });
+  }
+  closeGistSetup();
+  showToast('Connecting to Gist…');
+  await loadData();
+  buildCatBar(); renderAll();
+  showToast('✅ Gist connected!', 'ok');
+}
+
+// ── PWA: SHARE TARGET HANDLER ─────────────────────────────────
+function handleShareOnLoad() {
+  const params = new URLSearchParams(location.search);
+  if (params.get('share') !== '1') return;
+  const username = params.get('username') || '';
+  const raw      = params.get('raw')      || '';
+  if (username || raw) {
+    setTimeout(() => triggerShareAdd(username, raw), 800);
+    // Clean URL
+    history.replaceState({}, '', location.pathname);
+  }
+}
+
+function triggerShareAdd(username, raw) {
+  const uname = username || extractUsernameFromRaw(raw);
+  if (!uname) { showToast('Could not extract username from share', 'err'); return; }
+  showShareBanner(uname);
+  // Pre-fill add modal
+  openAddModal(null);
+  setTimeout(() => {
+    const input = document.getElementById('inputUrl');
+    if (input) {
+      input.value = 'https://www.instagram.com/' + uname;
+      parseUrl();
+    }
+  }, 100);
+}
+
+function extractUsernameFromRaw(raw) {
+  const urlMatch = raw.match(/instagram\.com\/([A-Za-z0-9._]+)/);
+  if (urlMatch) return urlMatch[1];
+  const atMatch  = raw.match(/@([A-Za-z0-9._]+)/);
+  if (atMatch) return atMatch[1];
+  return '';
+}
+
+function showShareBanner(username) {
+  const b = document.getElementById('shareBanner');
+  document.getElementById('shareBannerText').textContent =
+    `📲 Added to Spectra: @${username} — fill in details and save!`;
+  b.style.display = 'flex';
+  setTimeout(dismissShareBanner, 8000);
+}
+function dismissShareBanner() {
+  document.getElementById('shareBanner').style.display = 'none';
+}
+
+// ── INIT ──────────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', async () => {
+  // Register service worker
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/spectra/sw.js').then(reg => {
+      console.log('[Spectra] SW registered:', reg.scope);
+    }).catch(e => console.warn('[Spectra] SW failed:', e));
+    navigator.serviceWorker.addEventListener('message', e => {
+      if (e.data?.type === 'SHARE_RECEIVED') triggerShareAdd('', e.data.raw || e.data.url || '');
+    });
+  }
+
+  await loadData();
+  buildCatBar(); buildRatingDots(); buildPriorityBtns(); renderAll();
+
+  // Handle share target on load
+  handleShareOnLoad();
+
+  // Gist setup available via toolbar button
+
+  document.addEventListener('keydown', e => {
+    if ((e.ctrlKey||e.metaKey) && e.key==='s') { e.preventDefault(); exportBackup(); }
+  });
+});
+
+// ══════════════════════════════════════════════════════════════
+// URL PARSING
+// ══════════════════════════════════════════════════════════════
+function extractUsername(raw) {
+  raw = raw.trim();
+  // Instagram share URL: https://www.instagram.com/username?igsh=...
+  const urlMatch = raw.match(/instagram\.com\/([A-Za-z0-9_.]+)/);
+  if (urlMatch) return '@' + urlMatch[1];
+  // direct @username
+  if (raw.startsWith('@')) return raw.split(/[\s?]/)[0];
+  // plain username
+  if (/^[A-Za-z0-9_.]+$/.test(raw)) return '@' + raw;
+  return null;
+}
+
+function parseUrl() {
+  const raw = document.getElementById('inputUrl').value;
+  const uname = extractUsername(raw);
+  if (uname) {
+    document.getElementById('urlHint').textContent = '✅ Username: ' + uname;
+    document.getElementById('urlHint').style.color = 'var(--green)';
+  } else {
+    document.getElementById('urlHint').textContent = 'Paste the "Copy Profile URL" link — username will be extracted.';
+    document.getElementById('urlHint').style.color = 'var(--t3)';
+  }
+}
+
+// ══════════════════════════════════════════════════════════════
+// CATEGORY BAR
+// ══════════════════════════════════════════════════════════════
+function buildCatBar() {
+  const bar = document.getElementById('catBar');
+  bar.innerHTML = '';
+  const allCount = profiles.length;
+
+  const allPill = makePill('all', 'All', '#b69fff', allCount);
+  allPill.onclick = () => { activeCat = 'all'; buildCatBar(); renderAll(); };
+  if (activeCat === 'all') allPill.classList.add('active');
+  bar.appendChild(allPill);
+
+  categories.forEach(cat => {
+    const cnt = profiles.filter(p => (p.categories||[]).includes(cat.id)).length;
+    const pill = makePill(cat.id, cat.name, cat.color, cnt);
+    pill.onclick = (e) => {
+      if (e.target.classList.contains('cat-edit-ico')) { openCatManager(); return; }
+      activeCat = cat.id; buildCatBar(); renderAll();
+    };
+    if (activeCat === cat.id) pill.classList.add('active');
+    bar.appendChild(pill);
+  });
+}
+
+function makePill(id, name, color, cnt) {
+  const p = document.createElement('button');
+  p.className = 'cat-pill';
+  p.innerHTML = `<span class="dot" style="background:${color}"></span>${name}<span class="cnt">${cnt}</span><span class="cat-edit-ico">✎</span>`;
+  return p;
+}
+
+// ══════════════════════════════════════════════════════════════
+// RENDER
+// ══════════════════════════════════════════════════════════════
+function renderAll() {
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  const sort = document.getElementById('sortSel').value;
+
+  let list = profiles.filter(p => {
+    if (activeCat !== 'all' && !(p.categories||[]).includes(activeCat)) return false;
+    if (q) {
+      const hay = `${p.username} ${p.name} ${p.notes||''}`.toLowerCase();
+      return hay.includes(q);
+    }
+    return true;
+  });
+
+  // sort
+  if (sort === 'az') list.sort((a,b)=>(a.username||'').localeCompare(b.username||''));
+  else if (sort === 'rating') list.sort((a,b)=>(b.rating||0)-(a.rating||0));
+  else if (sort === 'priority') list.sort((a,b)=>getPriorityOrder(a.priority)-getPriorityOrder(b.priority));
+  else list.sort((a,b)=>(b.addedAt||0)-(a.addedAt||0));
+
+  const grid = document.getElementById('grid');
+  const empty = document.getElementById('emptyState');
+  grid.innerHTML = '';
+
+  document.getElementById('navCount').innerHTML = `<b>${profiles.length}</b> profiles`;
+  document.getElementById('resultCount').textContent = `${list.length} shown`;
+
+  if (list.length === 0) { empty.style.display='block'; return; }
+  empty.style.display = 'none';
+
+  list.forEach(p => grid.appendChild(makeCard(p)));
+}
+
+function makeCard(p) {
+  const card = document.createElement('div');
+  card.className = 'card';
+  card.dataset.id = p.id;
+
+  const badge = badges.find(b=>b.key===p.priority);
+  const badgeHTML = badge
+    ? `<span class="priority-tag" style="background:${hexAlpha(badge.color,0.18)};color:${badge.color}">${badge.label}</span>` : '';
+
+  const avHTML = avatarHTML(p, 60, 22);
+  const catChips = (p.categories||[]).map(cid => {
+    const cat = categories.find(c=>c.id===cid);
+    return cat ? `<span class="cat-chip" style="background:${hexAlpha(cat.color,0.15)};color:${cat.color};border-color:${hexAlpha(cat.color,0.3)}">${cat.name}</span>` : '';
+  }).join('');
+  const starsHTML = buildStarsDisplay(p.rating||0);
+
+  card.innerHTML = `
+    ${badgeHTML}
+    <div class="card-actions">
+      <div class="ico-btn" title="Edit" onclick="event.stopPropagation();openAddModal('${p.id}')">✎</div>
+      <div class="ico-btn" title="Move to category" onclick="event.stopPropagation();toggleMoveDD(this,'${p.id}')">⇄
+        <div class="move-dd" id="movedd-${p.id}" onclick="event.stopPropagation()"></div>
+      </div>
+      <div class="ico-btn del" title="Delete" onclick="event.stopPropagation();deleteProfile('${p.id}')">✕</div>
+    </div>
+    ${avHTML}
+    <div class="card-user">${p.username}</div>
+    ${p.name ? `<div class="card-name">${p.name}</div>` : ''}
+    <div class="card-cats">${catChips}</div>
+    ${starsHTML}
+    ${p.notes ? `<div class="card-note">${escHtml(p.notes)}</div>` : ''}
+    <button class="open-ig" onclick="event.stopPropagation();openIGProfile('${p.id}')">Open on Instagram ↗</button>
+  `;
+
+  card.addEventListener('click', () => openDetailPanel(p.id));
+  return card;
+}
+
+function avatarHTML(p, size, fsize) {
+  const cls = `c${Math.abs(hashStr(p.username||'?'))%8}`;
+  const letter = (p.username||'?').replace('@','').slice(0,1).toUpperCase();
+  const inner = p.avatar
+    ? `<img src="${p.avatar}" alt="" onerror="this.style.display='none'">`
+    : letter;
+  return `<div class="avatar ${cls}" style="width:${size}px;height:${size}px;font-size:${fsize}px">${inner}</div>`;
+}
+
+function buildStarsDisplay(r) {
+  // r is 1-10, show as 5 half-star dots visually (pair = 2 points)
+  let html = '<div class="card-stars">';
+  for (let i=1;i<=10;i++) {
+    html += `<span class="s${i<=r?' on':''}">●</span>`;
+  }
+  html += '</div>';
+  return html;
+}
+
+// ══════════════════════════════════════════════════════════════
+// MOVE DROPDOWN
+// ══════════════════════════════════════════════════════════════
+function toggleMoveDD(btn, id) {
+  // close all others
+  document.querySelectorAll('.move-dd.open').forEach(d => { if (d.id !== `movedd-${id}`) d.classList.remove('open'); });
+  const dd = document.getElementById(`movedd-${id}`);
+  if (!dd) return;
+  if (dd.classList.contains('open')) { dd.classList.remove('open'); return; }
+  const p = profiles.find(x=>x.id===id);
+  if (!p) return;
+  let html = `<div class="move-dd-hd">Move to category</div>`;
+  categories.forEach(cat => {
+    const isCur = (p.categories||[]).includes(cat.id);
+    html += `<div class="move-item${isCur?' cur':''}" onclick="moveToCategory('${id}','${cat.id}',${isCur})">
+      <span style="width:8px;height:8px;border-radius:50%;background:${cat.color};display:inline-block;flex-shrink:0"></span>
+      ${cat.name} ${isCur?'✓':''}
+    </div>`;
+  });
+  html += `<div class="move-sep"></div>
+    <div class="move-item" onclick="promptNewCatForMove('${id}')">＋ New category…</div>`;
+  dd.innerHTML = html;
+  dd.classList.add('open');
+  // close on outside click
+  setTimeout(() => {
+    document.addEventListener('click', function closeDd() {
+      dd.classList.remove('open');
+      document.removeEventListener('click', closeDd);
+    }, {once:true});
+  }, 50);
+}
+
+function moveToCategory(id, catId, isCur) {
+  const p = profiles.find(x=>x.id===id);
+  if (!p) return;
+  if (isCur) {
+    p.categories = (p.categories||[]).filter(c=>c!==catId);
+    showToast('Removed from category');
+  } else {
+    if (!p.categories) p.categories = [];
+    if (!p.categories.includes(catId)) p.categories.push(catId);
+    showToast('Moved ✓');
+  }
+  saveData(); buildCatBar(); renderAll();
+}
+
+function promptNewCatForMove(id) {
+  const name = prompt('New category name:');
+  if (!name) return;
+  const color = '#' + Math.floor(Math.random()*16777215).toString(16).padStart(6,'0');
+  const newCat = { id: genId(), name: name.trim(), color };
+  categories.push(newCat);
+  moveToCategory(id, newCat.id, false);
+}
+
+// ══════════════════════════════════════════════════════════════
+// ADD / EDIT MODAL
+// ══════════════════════════════════════════════════════════════
+function openAddModal(id) {
+  editingId = id;
+  const p = id ? profiles.find(x=>x.id===id) : null;
+  document.getElementById('addModalTitle').textContent = p ? 'Edit Profile' : 'Add Profile';
+
+  // populate
+  document.getElementById('inputUrl').value = p ? (p.igUrl || p.username || '') : '';
+  document.getElementById('inputName').value = p ? (p.name || '') : '';
+  document.getElementById('inputNotes').value = p ? (p.notes || '') : '';
+  document.getElementById('inputBio').value = p ? (p.igBio || '') : '';
+  document.getElementById('inputPosts').value = p ? (p.igPosts || '') : '';
+  document.getElementById('inputFollowers').value = p ? (p.igFollowers || '') : '';
+  document.getElementById('inputFollowing').value = p ? (p.igFollowing || '') : '';
+  document.getElementById('avUrlInput').value = '';
+  formRating = p ? (p.rating||0) : 0;
+  formPriority = p ? (p.priority||'normal') : 'normal';
+  formAvatar = p ? (p.avatar||'') : '';
+
+  document.getElementById('avPreview').innerHTML = formAvatar
+    ? `<img src="${formAvatar}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`
+    : '📷';
+
+  buildCatChecks(p ? (p.categories||[]) : []);
+  updatePriorityUI();
+  updateRatingDots();
+
+  if (p) { parseUrl(); }
+  else {
+    document.getElementById('urlHint').textContent = 'Paste the "Copy Profile URL" link — username will be extracted.';
+    document.getElementById('urlHint').style.color = 'var(--t3)';
+  }
+
+  document.getElementById('addOverlay').classList.add('open');
+}
+function closeAddModal(event) {
+  if (event && event.target !== document.getElementById('addOverlay')) return;
+  document.getElementById('addOverlay').classList.remove('open');
+  editingId = null;
+}
+
+function buildCatChecks(selected) {
+  const el = document.getElementById('catChecks');
+  el.innerHTML = '';
+  categories.forEach(cat => {
+    const div = document.createElement('div');
+    div.className = 'cat-check-item' + (selected.includes(cat.id) ? ' checked' : '');
+    div.innerHTML = `<span class="cch-dot" style="background:${cat.color}"></span>${cat.name}`;
+    div.onclick = () => {
+      div.classList.toggle('checked');
+    };
+    div.dataset.catId = cat.id;
+    el.appendChild(div);
+  });
+}
+
+function buildPriorityBtns() {
+  const row = document.getElementById('priorityRow');
+  row.innerHTML = '';
+  badges.forEach(b => {
+    const btn = document.createElement('button');
+    btn.className = 'p-btn';
+    btn.dataset.p = b.key;
+    btn.textContent = b.label;
+    btn.style.color = b.color;
+    btn.onclick = () => { formPriority = b.key; updatePriorityUI(); };
+    if (formPriority === b.key) btn.classList.add('active');
+    row.appendChild(btn);
+  });
+}
+
+function updatePriorityUI() {
+  document.querySelectorAll('.p-btn').forEach(btn => {
+    const b = badges.find(x=>x.key===btn.dataset.p);
+    btn.classList.toggle('active', btn.dataset.p === formPriority);
+    if (b) {
+      btn.style.borderColor = btn.dataset.p === formPriority ? b.color : 'transparent';
+      btn.style.background = btn.dataset.p === formPriority ? hexAlpha(b.color, 0.15) : 'var(--s3)';
+    }
+  });
+}
+
+function buildRatingDots() {
+  const el = document.getElementById('ratingDots');
+  el.innerHTML = '';
+  for (let i=1;i<=10;i++) {
+    const d = document.createElement('div');
+    d.className = 'rdot' + (i<=formRating?' on':'');
+    d.textContent = i;
+    d.dataset.v = i;
+    d.onclick = () => { formRating = i; updateRatingDots(); };
+    el.appendChild(d);
+  }
+}
+
+function updateRatingDots() {
+  document.querySelectorAll('.rdot').forEach(d => {
+    d.classList.toggle('on', parseInt(d.dataset.v) <= formRating);
+  });
+  document.getElementById('ratingVal').textContent = formRating || '–';
+}
+
+function saveProfile() {
+  const raw = document.getElementById('inputUrl').value.trim();
+  if (!raw) { showToast('Please enter a username or URL', 'err'); return; }
+  const username = extractUsername(raw) || (raw.startsWith('@') ? raw : '@'+raw);
+  const cats = [...document.querySelectorAll('#catChecks .cat-check-item.checked')].map(d=>d.dataset.catId);
+
+  const data = {
+    username,
+    igUrl: `https://www.instagram.com/${username.replace('@','')}`,
+    name: document.getElementById('inputName').value.trim(),
+    igBio: document.getElementById('inputBio').value.trim(),
+    igPosts: document.getElementById('inputPosts').value.trim(),
+    igFollowers: document.getElementById('inputFollowers').value.trim(),
+    igFollowing: document.getElementById('inputFollowing').value.trim(),
+    categories: cats,
+    priority: formPriority,
+    rating: formRating,
+    notes: document.getElementById('inputNotes').value.trim(),
+    avatar: formAvatar,
+  };
+
+  if (editingId) {
+    const idx = profiles.findIndex(x=>x.id===editingId);
+    if (idx>=0) profiles[idx] = {...profiles[idx], ...data};
+    showToast('Updated ✓', 'ok');
+  } else {
+    profiles.unshift({ id: genId(), addedAt: Date.now(), ...data });
+    showToast('Profile added ✓', 'ok');
+  }
+  saveData(); buildCatBar(); renderAll();
+  document.getElementById('addOverlay').classList.remove('open');
+  editingId = null;
+}
+
+// ══════════════════════════════════════════════════════════════
+// AVATAR
+// ══════════════════════════════════════════════════════════════
+function handleAvFile(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    formAvatar = ev.target.result;
+    document.getElementById('avPreview').innerHTML = `<img src="${formAvatar}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`;
+  };
+  reader.readAsDataURL(file);
+}
+
+async function pasteAvClipboard() {
+  try {
+    const items = await navigator.clipboard.read();
+    for (const item of items) {
+      for (const type of item.types) {
+        if (type.startsWith('image/')) {
+          const blob = await item.getType(type);
+          const reader = new FileReader();
+          reader.onload = ev => {
+            formAvatar = ev.target.result;
+            document.getElementById('avPreview').innerHTML = `<img src="${formAvatar}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`;
+          };
+          reader.readAsDataURL(blob);
+          showToast('Image pasted ✓', 'ok');
+          return;
+        }
+      }
+    }
+    showToast('No image in clipboard', 'err');
+  } catch { showToast('Copy an image first, then paste', 'err'); }
+}
+
+function applyAvUrl() {
+  const url = document.getElementById('avUrlInput').value.trim();
+  if (!url) return;
+  formAvatar = url;
+  document.getElementById('avPreview').innerHTML = `<img src="${url}" style="width:100%;height:100%;object-fit:cover;border-radius:50%" onerror="this.parentNode.innerHTML='❌'">`;
+}
+
+// ══════════════════════════════════════════════════════════════
+// DELETE
+// ══════════════════════════════════════════════════════════════
+function deleteProfile(id) {
+  const p = profiles.find(x=>x.id===id);
+  if (!p) return;
+  if (!confirm(`Remove ${p.username}?`)) return;
+  profiles = profiles.filter(x=>x.id!==id);
+  saveData(); buildCatBar(); renderAll();
+  showToast('Removed', 'ok');
+  if (document.getElementById('detailOverlay').classList.contains('open')) closeDetail();
+}
+
+// ══════════════════════════════════════════════════════════════
+// DETAIL PANEL
+// ══════════════════════════════════════════════════════════════
+function openDetailPanel(id) {
+  const p = profiles.find(x=>x.id===id);
+  if (!p) return;
+  const panel = document.getElementById('detailPanel');
+  const badge = badges.find(b=>b.key===p.priority);
+  const badgeHTML = badge ? `<span class="priority-tag" style="background:${hexAlpha(badge.color,0.18)};color:${badge.color}">${badge.label}</span>` : '';
+  const catChips = (p.categories||[]).map(cid=>{
+    const cat=categories.find(c=>c.id===cid);
+    return cat?`<span class="cat-chip" style="background:${hexAlpha(cat.color,0.15)};color:${cat.color};border-color:${hexAlpha(cat.color,0.3)}">${cat.name}</span>`:'';
+  }).join('');
+  const avHTML = avatarHTML(p,64,24);
+  const starsRow = buildStarsDisplay(p.rating||0);
+
+  panel.innerHTML = `
+    <div class="detail-top">
+      <button class="close-btn" onclick="closeDetail()">✕</button>
+      ${badgeHTML}
+      <button class="btn" onclick="openAddModal('${p.id}')">✎ Edit</button>
+      <button class="btn danger" onclick="deleteProfile('${p.id}')">✕ Delete</button>
+    </div>
+
+    <div class="ig-picker">
+      <div class="ig-opt active" id="igOptInfo" onclick="switchDetailView('info','${p.id}')">ℹ Profile Info</div>
+      <div class="ig-opt" id="igOptIframe" onclick="switchDetailView('iframe','${p.id}')">🖼 Embedded</div>
+      <div class="ig-opt" id="igOptTab" onclick="window.open('${p.igUrl||'https://instagram.com/'+p.username.replace('@','')}','_blank')">↗ New Tab</div>
+    </div>
+
+    <div id="detailContentArea">
+      <div class="detail-info" id="detailInfoSection">
+        <div class="detail-avatar-row">
+          ${avHTML}
+          <div>
+            <div class="detail-uname">${p.username}</div>
+            ${p.name?`<div class="detail-fname">${escHtml(p.name)}</div>`:''}
+          </div>
+        </div>
+        ${catChips?`<div class="detail-sec"><div class="detail-sec-lbl">Categories</div><div class="card-cats" style="justify-content:flex-start">${catChips}</div></div>`:''}
+        <div class="detail-sec">
+          <div class="detail-sec-lbl">Rating</div>
+          ${starsRow}
+          <span style="font-size:13px;color:var(--amber);font-weight:700">${p.rating||0}/10</span>
+        </div>
+        ${p.notes?`<div class="detail-sec"><div class="detail-sec-lbl">Notes</div><div class="detail-notes-box">${escHtml(p.notes)}</div></div>`:''}
+        <div class="detail-sec"><div class="detail-sec-lbl">Added</div><div class="detail-meta">${formatDate(p.addedAt)}</div></div>
+        <div class="detail-sec">
+          <div class="detail-sec-lbl">Instagram Link</div>
+          <a href="${p.igUrl||'https://instagram.com/'+p.username.replace('@','')}" target="_blank" style="color:var(--accent);font-size:13px;word-break:break-all;">${p.igUrl||('https://instagram.com/'+p.username.replace('@',''))}</a>
+        </div>
+      </div>
+      <iframe id="detailIframe" class="detail-ig-zone" src="" style="display:none;height:calc(100vh - 180px)"></iframe>
+    </div>
+  `;
+
+  document.getElementById('detailOverlay').classList.add('open');
+}
+
+function switchDetailView(mode, id) {
+  const p = profiles.find(x=>x.id===id);
+  document.getElementById('igOptInfo').classList.toggle('active', mode==='info');
+  document.getElementById('igOptIframe').classList.toggle('active', mode==='iframe');
+  document.getElementById('detailInfoSection').style.display = mode==='info' ? 'block' : 'none';
+  const iframe = document.getElementById('detailIframe');
+  if (mode==='iframe') {
+    iframe.style.display = 'block';
+    if (!iframe.src || iframe.src==='about:blank' || iframe.src==='') {
+      iframe.src = p ? (p.igUrl||'https://www.instagram.com/'+p.username.replace('@','')) : '';
+    }
+  } else {
+    iframe.style.display = 'none';
+  }
+}
+
+function closeDetail() {
+  document.getElementById('detailOverlay').classList.remove('open');
+  const iframe = document.getElementById('detailIframe');
+  if (iframe) iframe.src = '';
+}
+
+// ══════════════════════════════════════════════════════════════
+// OPEN IG PROFILE — always shows 4-option picker
+// ══════════════════════════════════════════════════════════════
+let _openPickTarget = null;
+
+function openIGProfile(id) {
+  const p = profiles.find(x=>x.id===id);
+  if (!p) return;
+  const url = p.igUrl || 'https://www.instagram.com/' + p.username.replace('@','');
+  _openPickTarget = { id, url, user: p.username };
+  document.getElementById('openPickerUser').textContent = p.username;
+  document.getElementById('openPickerOverlay').classList.add('open');
+}
+
+function openPickChoice(mode) {
+  closeOpenPicker();
+  if (!_openPickTarget) return;
+  const { id, url, user } = _openPickTarget;
+  _openPickTarget = null;
+
+  if (mode === 'tab') {
+    window.open(url, '_blank');
+
+  } else if (mode === 'iframe') {
+    document.getElementById('vmTitle').textContent = user;
+    document.getElementById('viewIframe').src = url;
+    document.getElementById('viewOverlay').classList.add('open');
+    viewTargetUrl = url;
+
+  } else if (mode === 'sidepanel') {
+    openDetailPanel(id);
+    setTimeout(() => switchDetailView('iframe', id), 250);
+
+  } else if (mode === 'card') {
+    openIgCard(id);
+  }
+}
+
+function closeOpenPicker() {
+  document.getElementById('openPickerOverlay').classList.remove('open');
+}
+
+function openInNewTab() { if (viewTargetUrl) window.open(viewTargetUrl,'_blank'); }
+function closeViewModal(event) {
+  if (event && event.target !== document.getElementById('viewOverlay')) return;
+  document.getElementById('viewOverlay').classList.remove('open');
+  document.getElementById('viewIframe').src = '';
+}
+
+// ══════════════════════════════════════════════════════════════
+// INSTAGRAM-STYLE PROFILE CARD
+// Merges: real data from extension + your vault data
+// ══════════════════════════════════════════════════════════════
+async function openIgCard(id) {
+  const p = profiles.find(x=>x.id===id);
+  if (!p) return;
+
+  // Show modal immediately with loading state
+  const modal = document.getElementById('igCardModal');
+  const uname = p.username.replace('@','');
+  const url = p.igUrl || 'https://www.instagram.com/' + uname;
+  modal.innerHTML = `
+    <div class="igr-topbar">
+      <button class="igr-back" onclick="closeIgCard()">←</button>
+      <span class="igr-topname">${escHtml(uname)}</span>
+      <button class="igr-menu" onclick="window.open('${url}','_blank')">⋮</button>
+    </div>
+    <div style="padding:40px;text-align:center;color:#444;font-size:13px;">
+      <div style="font-size:28px;margin-bottom:12px">⚡</div>
+      Loading profile data…
+    </div>`;
+  document.getElementById('igCardOverlay').classList.add('open');
+
+  // Try to get real data from extension
+  let extData = null;
+  try {
+    extData = await getExtensionData(uname);
+  } catch(e) { /* extension not installed */ }
+
+  renderIgCard(p, extData);
+}
+
+// Fetch real IG data from Gist via extension bridge
+async function getExtensionData(username) {
+  if (!hasExtension) return null;
+  const res = await extMsg({ type: 'GET_IG_PROFILE', username: username.replace('@','') });
+  return res?.profile || null;
+}
+
+// Re-upload expired CDN pic to ImgBB permanently
+async function reuploadToImgBB(username, imageUrl) {
+  if (!hasExtension) { showToast('Extension required for ImgBB upload', 'err'); return; }
+  showToast('Uploading to ImgBB…');
+  const res = await extMsg({ type: 'REUPLOAD_TO_IMGBB', username, imageUrl });
+  if (res?.ok) {
+    showToast('✅ Permanent pic saved!', 'ok');
+    openIgCard(profiles.find(p=>p.username.replace('@','')=== username.toLowerCase())?.id);
+  } else {
+    showToast('ImgBB upload failed — check API key in extension', 'err');
+  }
+}
+
+function renderIgCard(p, extData) {
+  const uname = p.username.replace('@','');
+  const url = p.igUrl || 'https://www.instagram.com/' + uname;
+  const badge = badges.find(b=>b.key===p.priority);
+
+  // Merge: extension data overrides manual data where available
+  const profilePic  = (extData && (extData.profilePicPerm || extData.profilePicUrl)) || p.avatar || null;
+  const fullName    = (extData && extData.fullName)     || p.name    || null;
+  const bio         = (extData && extData.bio)          || p.igBio   || null;
+  const posts       = (extData && extData.posts)        || p.igPosts     || '—';
+  const followers   = (extData && extData.followers)    || p.igFollowers || '—';
+  const following   = (extData && extData.following)    || p.igFollowing || '—';
+  const recentPosts = (extData && extData.recentPosts)  || [];
+  const hasRealData = !!(extData && extData.profilePic);
+
+  // Avatar
+  const avInner = profilePic
+    ? `<img src="${profilePic}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" onerror="this.parentElement.innerHTML='${uname.slice(0,1).toUpperCase()}';">`
+    : `<span style="font-size:32px;font-weight:800;color:#fff">${uname.slice(0,1).toUpperCase()}</span>`;
+
+  // Post grid — real thumbnails or placeholders
+  let postGrid = '';
+  if (recentPosts.length > 0) {
+    recentPosts.slice(0,9).forEach(post => {
+      const imgSrc = post.thumb || post.thumbUrl || '';
+      const reelIcon = post.isReel ? `<span class="igr-reel-icon">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M2 3h20v2H2zm0 16h20v2H2zM2 8h4v8H2zm16 0h4v8h-4zM8 8h8v8H8z"/></svg>
+      </span>` : '';
+      const viewHtml = post.viewCount ? `<span class="igr-view-count">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="white"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        ${post.viewCount}
+      </span>` : '';
+      postGrid += `<div class="igr-post" onclick="if('${post.href}')window.open('${post.href}','_blank')">
+        ${imgSrc ? `<img src="${imgSrc}" alt="" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.querySelector('.igr-post-placeholder').style.display='flex';this.remove();">` : ''}
+        <div class="igr-post-placeholder" style="${imgSrc?'display:none':''}">▶</div>
+        <div class="igr-post-overlay"></div>
+        ${reelIcon}${viewHtml}
+      </div>`;
+    });
+    // Fill remaining slots if < 9
+    for(let i = recentPosts.length; i < 9; i++) {
+      postGrid += `<div class="igr-post"><div class="igr-post-placeholder" style="color:#1a1a1a">▪</div></div>`;
+    }
+  } else {
+    // No extension data — show placeholder grid with sync prompt
+    for(let i=0;i<9;i++){
+      postGrid += `<div class="igr-post"><div class="igr-post-placeholder">▶</div></div>`;
+    }
+  }
+
+  // Categories chips
+  const catChips = (p.categories||[]).map(cid=>{
+    const cat=categories.find(c=>c.id===cid);
+    return cat?`<span style="background:${hexAlpha(cat.color,0.18)};color:${cat.color};border:1px solid ${hexAlpha(cat.color,0.35)};padding:3px 10px;border-radius:12px;font-size:12px;font-weight:500">${cat.name}</span>`:'';
+  }).join('');
+
+  // Rating dots
+  let rDots='';
+  for(let i=1;i<=10;i++) rDots+=`<span style="display:inline-block;width:15px;height:15px;border-radius:50%;background:${i<=(p.rating||0)?'#ffc14a':'#252525'};margin:1px;font-size:8px;line-height:15px;text-align:center;font-weight:700;color:${i<=(p.rating||0)?'#000':'#444'}">${i}</span>`;
+
+  const badgeHTML = badge
+    ? `<span style="font-size:11px;font-weight:700;border-radius:6px;padding:2px 9px;background:${hexAlpha(badge.color,0.2)};color:${badge.color};text-transform:uppercase;letter-spacing:0.05em">${badge.label}</span>` : '';
+
+  // Sync status banner — show ImgBB re-upload if only CDN URL (may expire)
+  const hasPermanentPic = !!(extData?.profilePicPerm);
+  const hasCdnOnly      = !!(extData?.profilePicUrl && !extData?.profilePicPerm);
+  const syncBanner = hasRealData
+    ? hasPermanentPic
+      ? `<div style="background:#0a1a0a;border-bottom:1px solid #1a3a1a;padding:6px 16px;font-size:11px;color:#5ef0a0;display:flex;align-items:center;gap:6px;">
+          ✅ Synced · Permanent pic (ImgBB) · ${timeAgo(extData.scrapedAt)}
+         </div>`
+      : `<div style="background:#151000;border-bottom:1px solid #2a2000;padding:7px 16px;font-size:11px;color:#ffc14a;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+          <span>📸</span>
+          <span style="flex:1">Using Instagram CDN pic — may expire in a few days</span>
+          <button onclick="reuploadToImgBB('${uname}','${profilePic}')"
+            style="background:#ffc14a;color:#000;border:none;border-radius:6px;padding:3px 10px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;">
+            📌 Make Permanent
+          </button>
+         </div>`
+    : `<div style="background:#1a1000;border-bottom:1px solid #3a2800;padding:8px 16px;font-size:11px;color:#ffc14a;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+        <span>⚡</span>
+        <span style="flex:1">Install the <strong>Spectra Sync</strong> extension to auto-load real profile pic + posts</span>
+        <button onclick="closeIgCard();showExtensionHelp()" style="background:#ffc14a;color:#000;border:none;border-radius:6px;padding:3px 10px;font-size:11px;font-weight:700;cursor:pointer;">Setup →</button>
+       </div>`;
+
+  const modal = document.getElementById('igCardModal');
+  modal.innerHTML = `
+    <!-- Top bar -->
+    <div class="igr-topbar">
+      <button class="igr-back" onclick="closeIgCard()">←</button>
+      <span class="igr-topname">${escHtml(uname)}</span>
+      <button class="igr-menu" onclick="window.open('${url}','_blank')" title="Open on Instagram">⋮</button>
+    </div>
+
+    ${syncBanner}
+
+    <!-- Profile header -->
+    <div class="igr-header">
+      <div class="igr-av-wrap">
+        <div class="igr-ring ${profilePic?'':'no-ring'}">
+          <div class="igr-av-inner">${avInner}</div>
+        </div>
+      </div>
+      <div class="igr-stats">
+        <div class="igr-stat">
+          <span class="igr-stat-n">${escHtml(String(posts))}</span>
+          <span class="igr-stat-l">posts</span>
+        </div>
+        <div class="igr-stat">
+          <span class="igr-stat-n">${escHtml(String(followers))}</span>
+          <span class="igr-stat-l">followers</span>
+        </div>
+        <div class="igr-stat">
+          <span class="igr-stat-n">${escHtml(String(following))}</span>
+          <span class="igr-stat-l">following</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Name + bio -->
+    <div class="igr-namerow">
+      ${fullName ? `<div class="igr-fullname">${escHtml(fullName)}</div>` : ''}
+      ${bio ? `<div class="igr-bio">${escHtml(bio)}</div>` : ''}
+    </div>
+
+    <!-- IG-style buttons -->
+    <div class="igr-actions">
+      <button class="igr-follow-btn" onclick="window.open('${url}','_blank')">Follow on Instagram</button>
+      <button class="igr-msg-btn" onclick="openAddModal('${p.id}');closeIgCard()">✎ Edit</button>
+    </div>
+
+    <!-- Tab bar -->
+    <div class="igr-tabs">
+      <div class="igr-tab active">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M3 3h7v7H3zm11 0h7v7h-7zM3 14h7v7H3zm11 0h7v7h-7z"/></svg>
+      </div>
+      <div class="igr-tab" onclick="window.open('${url}','_blank')">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+      </div>
+      <div class="igr-tab" onclick="window.open('${url}','_blank')">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5" fill="white" stroke="none"/><path d="M21 15l-5-5L5 21"/></svg>
+      </div>
+    </div>
+
+    <!-- Posts grid -->
+    <div class="igr-grid">${postGrid}</div>
+
+    ${!hasRealData ? `
+    <div style="text-align:center;padding:14px;font-size:12px;color:#333;border-top:1px solid #1a1a1a;">
+      Visit <a href="${url}" target="_blank" style="color:#b69fff">${url}</a> while logged in to sync real posts
+    </div>` : ''}
+
+    <!-- Vault data strip -->
+    <div class="igr-vault-strip">
+      <div class="igr-vault-title">⚡ Your Vault Data</div>
+      <div class="igr-vault-row">
+        <span class="igr-vault-label">Priority</span>
+        ${badgeHTML || '<span style="color:#333">Not set</span>'}
+      </div>
+      <div class="igr-vault-row">
+        <span class="igr-vault-label">Rating</span>
+        <span>${rDots} <span style="color:#ffc14a;margin-left:4px;font-weight:700">${p.rating||0}/10</span></span>
+      </div>
+      ${catChips ? `<div style="margin-bottom:10px;">
+        <div class="igr-vault-label" style="margin-bottom:6px;">Categories</div>
+        <div style="display:flex;flex-wrap:wrap;gap:5px;">${catChips}</div>
+      </div>` : ''}
+      ${p.notes ? `<div>
+        <div class="igr-vault-label" style="margin-bottom:4px;">Your Notes</div>
+        <div style="font-size:13px;color:#aaa;line-height:1.55;font-style:italic;background:#1a1a1a;border-radius:8px;padding:9px 12px;">${escHtml(p.notes)}</div>
+      </div>` : ''}
+      <div style="font-size:11px;color:#333;margin-top:12px;text-align:center;">Added ${formatDate(p.addedAt)}</div>
+    </div>
+  `;
+}
+
+function timeAgo(ts) {
+  if (!ts) return '';
+  const m = Math.floor((Date.now()-ts)/60000);
+  if (m < 1) return 'just now';
+  if (m < 60) return m + 'm ago';
+  const h = Math.floor(m/60);
+  if (h < 24) return h + 'h ago';
+  return Math.floor(h/24) + 'd ago';
+}
+
+function closeIgCard() {
+  document.getElementById('igCardOverlay').classList.remove('open');
+}
+
+// ── EXTENSION SETUP HELP ──────────────────────────────────────
+function showExtensionHelp() {
+  alert(`To get real profile pics & posts:\n\n1. Load the "igvault-extension" folder in Chrome\n   → chrome://extensions → Enable Developer Mode → Load unpacked\n\n2. Visit any Instagram profile while logged in\n   → Extension auto-captures data silently\n\n3. Come back to Spectra — cards show real data!\n\nThe extension runs in the background and syncs automatically.`);
+}
+
+// ══════════════════════════════════════════════════════════════
+// CATEGORY MANAGER
+// ══════════════════════════════════════════════════════════════
+function openCatManager() {
+  renderCatModalList();
+  renderBadgeList();
+  document.getElementById('catOverlay').classList.add('open');
+}
+function closeCatManager(event) {
+  if (event && event.target !== document.getElementById('catOverlay')) return;
+  document.getElementById('catOverlay').classList.remove('open');
+  buildCatBar(); renderAll();
+}
+
+function renderCatModalList() {
+  const el = document.getElementById('catModalList');
+  el.innerHTML = '';
+  categories.forEach((cat, idx) => {
+    const row = document.createElement('div');
+    row.className = 'cat-modal-item';
+    const cnt = profiles.filter(p=>(p.categories||[]).includes(cat.id)).length;
+    row.innerHTML = `
+      <input type="color" value="${cat.color}" onchange="updateCatColor('${cat.id}',this.value)" style="width:24px;height:24px;border:none;background:none;cursor:pointer;border-radius:50%;">
+      <span class="cat-name" ondblclick="inlineCatEdit(this,'${cat.id}')" title="Double-click to rename">${escHtml(cat.name)} <span style="color:var(--t3);font-size:11px">(${cnt})</span></span>
+      <button class="btn danger" style="padding:4px 9px;font-size:11px;" onclick="deleteCategory('${cat.id}')">✕</button>
+    `;
+    el.appendChild(row);
+  });
+}
+
+function inlineCatEdit(span, catId) {
+  const cat = categories.find(c=>c.id===catId);
+  if (!cat) return;
+  const input = document.createElement('input');
+  input.type='text'; input.className='cat-edit-input'; input.value=cat.name;
+  span.replaceWith(input);
+  input.focus();
+  input.select();
+  input.onblur = () => {
+    cat.name = input.value.trim() || cat.name;
+    saveData(); renderCatModalList(); buildCatBar();
+  };
+  input.onkeydown = e => { if(e.key==='Enter') input.blur(); if(e.key==='Escape'){cat.name=cat.name;renderCatModalList();} };
+}
+
+function updateCatColor(id, color) {
+  const cat = categories.find(c=>c.id===id);
+  if (cat) { cat.color=color; saveData(); buildCatBar(); }
+}
+
+function addCategory() {
+  const name = document.getElementById('newCatName').value.trim();
+  if (!name) return;
+  const color = document.getElementById('newCatColor').value;
+  categories.push({ id: genId(), name, color });
+  saveData(); renderCatModalList(); buildCatBar();
+  document.getElementById('newCatName').value = '';
+  showToast('Category added ✓', 'ok');
+}
+
+function deleteCategory(id) {
+  const cat = categories.find(c=>c.id===id);
+  if (!cat) return;
+  const cnt = profiles.filter(p=>(p.categories||[]).includes(id)).length;
+  if (cnt > 0 && !confirm(`"${cat.name}" has ${cnt} profile(s). Remove category anyway? (Profiles won't be deleted)`)) return;
+  categories = categories.filter(c=>c.id!==id);
+  profiles.forEach(p => { p.categories = (p.categories||[]).filter(c=>c!==id); });
+  if (activeCat === id) activeCat = 'all';
+  saveData(); renderCatModalList(); buildCatBar(); renderAll();
+  showToast('Category removed', 'ok');
+}
+
+// ══════════════════════════════════════════════════════════════
+// BADGE MANAGER
+// ══════════════════════════════════════════════════════════════
+function renderBadgeList() {
+  const el = document.getElementById('badgeList');
+  el.innerHTML = '';
+  badges.forEach((b, idx) => {
+    const row = document.createElement('div');
+    row.className = 'cat-modal-item';
+    row.style.marginBottom = '6px';
+    row.innerHTML = `
+      <input type="color" value="${b.color}" onchange="updateBadgeColor(${idx},this.value)" style="width:24px;height:24px;border:none;background:none;cursor:pointer;border-radius:50%;">
+      <span class="badge-preview" style="background:${hexAlpha(b.color,0.18)};color:${b.color}">${escHtml(b.label)}</span>
+      <span style="flex:1;font-size:12px;color:var(--t3)">key: ${b.key}</span>
+      ${idx>0?`<button class="btn danger" style="padding:4px 9px;font-size:11px;" onclick="deleteBadge(${idx})">✕</button>`:'<span style="width:55px"></span>'}
+    `;
+    el.appendChild(row);
+  });
+}
+
+function updateBadgeColor(idx, color) {
+  badges[idx].color = color;
+  saveData(); renderBadgeList(); buildPriorityBtns(); renderAll();
+}
+
+function addBadge() {
+  const label = document.getElementById('newBadgeName').value.trim();
+  if (!label) return;
+  const color = document.getElementById('newBadgeColor').value;
+  const key = label.toLowerCase().replace(/\s+/g,'_').replace(/[^a-z0-9_]/g,'');
+  if (badges.find(b=>b.key===key)) { showToast('Badge key already exists','err'); return; }
+  badges.push({ key, label, color });
+  saveData(); renderBadgeList(); buildPriorityBtns();
+  document.getElementById('newBadgeName').value = '';
+  showToast('Badge added ✓', 'ok');
+}
+
+function deleteBadge(idx) {
+  if (!confirm(`Delete badge "${badges[idx].label}"?`)) return;
+  badges.splice(idx,1);
+  saveData(); renderBadgeList(); buildPriorityBtns();
+}
+
+// ══════════════════════════════════════════════════════════════
+// EXPORT / BACKUP
+// ══════════════════════════════════════════════════════════════
+function exportBackup() {
+  const data = { profiles, categories, badges, exportedAt: new Date().toISOString() };
+  const blob = new Blob([JSON.stringify(data,null,2)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `igvault_backup_${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+  showToast('📦 Backup exported ✓', 'ok');
+}
+
+// ══════════════════════════════════════════════════════════════
+// TOAST
+// ══════════════════════════════════════════════════════════════
+function showToast(msg, type='') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show' + (type ? ' '+type : '');
+  clearTimeout(t._tid);
+  t._tid = setTimeout(() => t.className='toast', 2800);
+}
+
+// ══════════════════════════════════════════════════════════════
+// UTILS
+// ══════════════════════════════════════════════════════════════
+function genId() { return Math.random().toString(36).slice(2,10) + Date.now().toString(36); }
+function hashStr(s) { let h=0; for(const c of s) h=((h<<5)-h)+c.charCodeAt(0); return h; }
+function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function hexAlpha(hex, a) {
+  const r=parseInt(hex.slice(1,3),16), g=parseInt(hex.slice(3,5),16), b=parseInt(hex.slice(5,7),16);
+  return `rgba(${r},${g},${b},${a})`;
+}
+function formatDate(ts) {
+  if (!ts) return 'Unknown';
+  return new Date(ts).toLocaleDateString('en-IN', {day:'numeric',month:'short',year:'numeric'});
+}
+
+// Close modals on overlay click (already handled inline, but safety net)
+document.querySelectorAll('.overlay').forEach(o => {
+  o.addEventListener('click', e => { if(e.target===o) o.classList.remove('open'); });
+});
+
+// ── PWA INSTALL PROMPT ────────────────────────────────────────
+let _installPrompt = null;
+
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  _installPrompt = e;
+  // Auto-trigger install prompt after short delay
+  setTimeout(() => {
+    if (_installPrompt) {
+      _installPrompt.prompt();
+      _installPrompt.userChoice.then(choice => {
+        if (choice.outcome === 'accepted') showToast('✅ Spectra installed!', 'ok');
+        _installPrompt = null;
+      });
+    }
+  }, 1000);
+});
+
+function installPWA() {
+  if (!_installPrompt) {
+    showToast('Open in Chrome browser to install', '');
+    return;
+  }
+  _installPrompt.prompt();
+  _installPrompt.userChoice.then(choice => {
+    console.log('[Spectra] Install choice:', choice.outcome);
+    _installPrompt = null;
+    const btn = document.getElementById('installBtn');
+    if (btn) btn.style.display = 'none';
+    if (choice.outcome === 'accepted') showToast('✅ Spectra installed!', 'ok');
+  });
+}
+
+window.addEventListener('appinstalled', () => {
+  showToast('✅ Spectra installed to home screen!', 'ok');
+  const btn = document.getElementById('installBtn');
+  if (btn) btn.style.display = 'none';
+});
+</script>
+</body>
+</html>
